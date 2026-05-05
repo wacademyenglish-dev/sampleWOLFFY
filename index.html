@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLF LABS | Masterclass Hub</title>
+    <!-- Fonts for all themes -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700;900&family=Space+Grotesk:wght@500;700&family=Courier+Prime:ital,wght@0,400;0,700&family=Oswald:wght@400;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=Rajdhani:wght@500;700;900&family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Exo+2:wght@400;600;800&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: { cyan: '#00F3FF', purple: '#8B5CF6', dark: '#0B0F19', card: '#151C2C' },
+                        beatles: { wood: '#3e2723', cream: '#f4ece1', navy: '#1c2841', red: '#8c2626', gold: '#bda888' },
+                        maiden: { dark: '#050b14', panel: '#0f172a', neon: '#39ff14', blue: '#00f3ff', gold: '#ffd700' },
+                        ccr: { olive: '#4B5320', dark: '#111111', panel: '#2d2d2d', orange: '#f97316', sepia: '#fdf6e3', ink: '#2c1e16' }
+                    },
+                    fontFamily: {
+                        outfit: ['Outfit', 'sans-serif'],
+                        display: ['"Space Grotesk"', 'sans-serif'],
+                        playfair: ['"Playfair Display"', 'serif'],
+                        typewriter: ['"Courier Prime"', 'monospace'],
+                        oswald: ['Oswald', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        exo: ['"Exo 2"', 'sans-serif'],
+                        cybermono: ['"Share Tech Mono"', 'monospace'],
+                        rajdhani: ['Rajdhani', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Base styles */
+        body { background-color: #0B0F19; color: #fff; overflow: hidden; font-family: 'Outfit', sans-serif; user-select: none; margin: 0; padding: 0; height: 100vh; width: 100vw; }
+        .hide-scroll::-webkit-scrollbar { display: none; }
+        .allow-select { user-select: text; }
+        
+        /* MULTIPLE SAMPLE WATERMARK */
+        .sample-watermark { 
+            position: fixed; inset: 0; pointer-events: none; z-index: 9999; 
+            background-image: url("data:image/svg+xml,%3Csvg width='300' height='300' xmlns='http://www.w3.org/2000/svg'%3E%3Ctext x='50%25' y='50%25' font-size='45' fill='rgba(255,255,255,0.05)' font-family='Oswald, sans-serif' font-weight='900' text-anchor='middle' dominant-baseline='middle' transform='rotate(-35 150 150)'%3ESAMPLE%3C/text%3E%3C/svg%3E"); 
+        }
+
+        /* Slide Mechanics */
+        .slide { display: none; opacity: 0; width: 100%; min-height: 100%; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; }
+        .slide.active { display: flex; animation: slideFadeIn 0.4s ease-out forwards; }
+        .slide::before, .slide::after { content: ''; margin: auto; }
+        .slide > * { flex-shrink: 0; max-width: 100%; z-index: 20; }
+        @keyframes slideFadeIn { from { opacity: 0; transform: scale(0.98) translateY(10px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+
+        /* Shared Components */
+        .vinyl-spin { animation: spin 4s linear infinite; }
+        .vinyl-paused { animation-play-state: paused !important; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        .shake { animation: shake 0.4s both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-2px, 0, 0); } 20%, 80% { transform: translate3d(4px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-6px, 0, 0); } 40%, 60% { transform: translate3d(6px, 0, 0); } }
+        .confetti { position: absolute; width: 10px; height: 10px; opacity: 0; z-index: 9999; pointer-events: none;}
+        @keyframes fall { 0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; } 100% { transform: translateY(110vh) rotate(720deg); opacity: 0; } }
+
+        /* --- HUB STYLES --- */
+        #hub-view { background-image: radial-gradient(circle at 15% 50%, rgba(139, 92, 246, 0.15) 0%, transparent 50%), radial-gradient(circle at 85% 30%, rgba(0, 243, 255, 0.15) 0%, transparent 50%); background-attachment: fixed; overflow-y: auto;}
+        .glass-card { background: rgba(21, 28, 44, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.4s; }
+        .glass-card:hover { transform: translateY(-8px); border-color: rgba(255, 255, 255, 0.2); box-shadow: 0 20px 40px -10px rgba(0,0,0,0.5); }
+        .gradient-text { background: linear-gradient(to right, #00F3FF, #8B5CF6, #EC4899); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .spinner { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.1); border-radius: 50%; border-top-color: #00F3FF; animation: spin 1s ease-in-out infinite; }
+
+        /* --- BEATLES STYLES --- */
+        #lesson-beatles { background-color: #1a1a1a; background-image: linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%, #1f1f1f), linear-gradient(45deg, #1f1f1f 25%, transparent 25%, transparent 75%, #1f1f1f 75%, #1f1f1f); background-size: 20px 20px; background-position: 0 0, 10px 10px; }
+        .beatles-screen { background-color: #f4ece1; position: relative; background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"><filter id="n"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/></filter><rect width="100%" height="100%" filter="url(%23n)" opacity="0.05"/></svg>'); }
+        .beatles-btn { background: linear-gradient(to bottom, #d4cbbe, #bda888); border: 2px solid #8c7b60; transition: all 0.1s; }
+        .beatles-btn:active { transform: translateY(2px); border-bottom-width: 0px;}
+        .beatles-highlight { color: #8c2626; font-family: 'PT Serif', serif; font-style: italic; font-weight: bold; cursor: pointer; border-bottom: 2px dotted #8c2626; transition: 0.2s; }
+        .beatles-highlight:hover { background: rgba(140,38,38,0.1); }
+        .fader-track { width: 40px; height: 120px; background: #111; border-radius: 20px; position: relative; border: 2px solid #333; cursor: pointer; }
+        .fader-knob { width: 50px; height: 30px; background: linear-gradient(to bottom, #d4cbbe, #8c7b60); border-radius: 4px; position: absolute; bottom: 5px; left: -7px; transition: bottom 0.3s; }
+        .fader-track.used .fader-knob { bottom: 85px; }
+
+        /* --- IRON MAIDEN STYLES --- */
+        #lesson-maiden { background-color: #000; background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px); background-size: 30px 30px; }
+        .maiden-screen { background-color: #020617; position: relative; }
+        .maiden-screen::before { content: " "; position: absolute; inset: 0; background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06)); z-index: 2; background-size: 100% 4px, 6px 100%; pointer-events: none; }
+        .maiden-btn { background: #0f172a; border: 1px solid #1e293b; transition: all 0.2s; }
+        .maiden-btn:hover { border-color: #39ff14; box-shadow: 0 0 10px rgba(57,255,20,0.3); }
+        .maiden-highlight { color: #ffd700; font-weight: bold; cursor: pointer; border-bottom: 2px dashed #ffd700; text-shadow: 0 0 8px rgba(255,215,0,0.5); }
+        .maiden-highlight:hover { background: rgba(255,215,0,0.2); }
+
+        /* --- CCR STYLES --- */
+        #lesson-ccr { background-color: #0f0f0f; background-image: radial-gradient(#222 1px, transparent 1px); background-size: 4px 4px; }
+        .ccr-screen { background-color: #fdf6e3; background-image: radial-gradient(rgba(0,0,0,0.04) 1px, transparent 1px); background-size: 12px 12px; }
+        .ccr-screen::before { content: ''; position: absolute; inset: 0; background: linear-gradient(to bottom, rgba(255,255,255,0.3) 0%, rgba(0,0,0,0.02) 100%); pointer-events: none; z-index: 10; }
+        .ccr-btn { background: linear-gradient(to bottom, #4a4a4a, #2d2d2d); border: 2px solid #1a1a1a; border-top-color: #666; transition: all 0.1s; }
+        .ccr-btn:active { background: #2d2d2d; border-top-color: #1a1a1a; border-bottom-color: #666; transform: translateY(2px); }
+        .ccr-highlight { color: #f97316; font-weight: bold; cursor: pointer; position: relative;}
+        .ccr-highlight::after { content: ''; position: absolute; width: 100%; height: 2px; bottom: 2px; left: 0; background-color: #f97316; transform: scaleX(0); transform-origin: bottom right; transition: transform 0.3s ease-out; }
+        .ccr-highlight:hover { color: #c2410c; }
+        .ccr-highlight:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+    </style>
+</head>
+<body>
+
+    <!-- GLOBAL WATERMARK -->
+    <div class="sample-watermark"></div>
+
+    <!-- ==================== HUB VIEW ==================== -->
+    <div id="hub-view" class="w-full h-full flex flex-col absolute inset-0 z-50">
+        <nav class="w-full bg-[#0B0F19]/80 backdrop-blur-md border-b border-white/10 shrink-0">
+            <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-cyan to-brand-purple flex items-center justify-center shadow-[0_0_15px_rgba(0,243,255,0.3)]">
+                        <span class="font-display font-bold text-xl text-white">W</span>
+                    </div>
+                    <span class="font-display font-bold text-2xl tracking-wide">WOLF<span class="text-brand-cyan">LABS</span></span>
+                </div>
+                <div class="text-gray-400 font-medium font-mono uppercase tracking-widest text-sm">Interactive Demo Hub</div>
+            </div>
+        </nav>
+
+        <main class="flex-1 max-w-7xl mx-auto px-6 pt-16 pb-20 w-full flex flex-col items-center">
+            <div class="text-center max-w-3xl mx-auto mb-16">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-brand-purple/10 border border-brand-purple/20 text-brand-purple text-sm font-bold tracking-widest uppercase mb-6">
+                    <span class="w-2 h-2 rounded-full bg-brand-purple animate-pulse"></span> Sample Collection
+                </div>
+                <h1 class="text-5xl md:text-7xl font-display font-bold mb-6 leading-tight">
+                    Experience Our <span class="gradient-text">Masterclasses</span>.
+                </h1>
+                <p class="text-xl text-gray-400 font-light">Select a 5-slide preview below to experience the methodology without loading new pages.</p>
+            </div>
+
+            <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <!-- BEATLES CARD -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col group cursor-pointer" onclick="launchLesson('beatles')">
+                    <div class="w-full aspect-square rounded-2xl overflow-hidden mb-6 relative">
+                        <img src="https://upload.wikimedia.org/wikipedia/pt/thumb/2/2b/The_Beatles_-_2023_-_Now_and_Then.jpg/250px-The_Beatles_-_2023_-_Now_and_Then.jpg" class="w-full h-full object-cover filter contrast-125 record-cover">
+                        <div class="absolute top-4 right-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10"><span class="text-xs font-bold text-gray-300">60s STUDIO</span></div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <span class="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs font-bold rounded w-fit mb-2">B1 INTERMEDIATE</span>
+                        <h3 class="text-3xl font-display font-bold mb-1">Now and Then</h3>
+                        <p class="text-gray-400 mb-6">The Beatles</p>
+                        <button class="mt-auto w-full py-4 rounded-xl bg-white text-black font-bold text-lg hover:bg-gray-200 transition-colors flex justify-center items-center gap-2">Launch Preview <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                    </div>
+                </div>
+
+                <!-- MAIDEN CARD -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col group cursor-pointer" onclick="launchLesson('maiden')">
+                    <div class="w-full aspect-square rounded-2xl overflow-hidden mb-6 relative">
+                        <img src="https://i.scdn.co/image/ab67616d0000b273ff77b94aa527101b8ef75364" class="w-full h-full object-cover record-cover">
+                        <div class="absolute top-4 right-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10"><span class="text-xs font-bold text-gray-300">CYBERPUNK</span></div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <span class="px-2 py-1 bg-green-500/20 text-green-400 text-xs font-bold rounded w-fit mb-2">B1 INTERMEDIATE</span>
+                        <h3 class="text-3xl font-display font-bold mb-1">Wasted Years</h3>
+                        <p class="text-gray-400 mb-6">Iron Maiden</p>
+                        <button class="mt-auto w-full py-4 rounded-xl bg-[#39ff14]/10 text-[#39ff14] border border-[#39ff14]/50 font-bold text-lg group-hover:bg-[#39ff14] group-hover:text-black transition-colors flex justify-center items-center gap-2">Launch Preview <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                    </div>
+                </div>
+
+                <!-- CCR CARD -->
+                <div class="glass-card rounded-3xl p-6 flex flex-col group cursor-pointer" onclick="launchLesson('ccr')">
+                    <div class="w-full aspect-square rounded-2xl overflow-hidden mb-6 relative">
+                        <img src="https://m.media-amazon.com/images/I/61hc8z07tNL._UF1000,1000_QL80_.jpg" class="w-full h-full object-cover filter sepia-[0.3] record-cover">
+                        <div class="absolute top-4 right-4 bg-black/60 backdrop-blur px-3 py-1 rounded-full border border-white/10"><span class="text-xs font-bold text-gray-300">VINTAGE 70s</span></div>
+                    </div>
+                    <div class="flex-1 flex flex-col">
+                        <span class="px-2 py-1 bg-orange-500/20 text-orange-400 text-xs font-bold rounded w-fit mb-2">A2 PRE-INT</span>
+                        <h3 class="text-2xl font-display font-bold mb-1">Have You Ever Seen The Rain</h3>
+                        <p class="text-gray-400 mb-6">CCR</p>
+                        <button class="mt-auto w-full py-4 rounded-xl bg-[#f97316]/10 text-[#f97316] border border-[#f97316]/50 font-bold text-lg group-hover:bg-[#f97316] group-hover:text-black transition-colors flex justify-center items-center gap-2">Launch Preview <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div id="loader" class="fixed inset-0 bg-[#0B0F19] z-[100] flex flex-col items-center justify-center opacity-0 pointer-events-none transition-opacity duration-500">
+        <div class="spinner mb-8"></div>
+        <h2 id="loader-title" class="text-3xl font-display font-bold mb-2">Loading Environment...</h2>
+    </div>
+
+
+    <!-- ==================== LESSON 1: BEATLES ==================== -->
+    <div id="lesson-beatles" class="w-full h-full absolute inset-0 z-40 hidden flex-col">
+        <div class="flex-1 flex flex-col w-full h-full max-w-[1600px] mx-auto p-2 lg:p-4 gap-2 z-10 text-beatles-navy">
+            <main class="flex-1 flex flex-col bg-beatles-woodLight rounded-3xl border-[6px] border-beatles-wood relative overflow-hidden shadow-2xl">
+                <div class="flex-1 m-2 lg:m-4 rounded-2xl beatles-screen p-6 lg:p-10 overflow-y-auto hide-scroll flex flex-col">
+                    
+                    <!-- B Slide 1: Intro -->
+                    <section class="slide b-slide">
+                        <div class="w-full max-w-5xl mx-auto text-center">
+                            <h2 class="font-typewriter text-beatles-red font-bold tracking-widest uppercase text-sm mb-4 bg-beatles-red/10 inline-block px-3 py-1 rounded">Preview • 5 Slides</h2>
+                            <h1 class="text-6xl lg:text-9xl font-black font-playfair leading-none tracking-tight mb-8 italic">Now And<br><span class="text-beatles-gold">Then</span></h1>
+                            <div class="border-y-2 border-beatles-gold/30 py-8 mb-8 bg-beatles-cream/50 rounded-xl">
+                                <p class="font-outfit text-xl lg:text-2xl font-bold">> TARGET: B1 (Intermediate)</p>
+                                <p class="font-outfit text-xl lg:text-2xl font-bold">> GRAMMAR: Used to vs. Present Simple</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- B Slide 2: Video -->
+                    <section class="slide b-slide h-full">
+                        <h1 class="text-4xl lg:text-6xl font-black font-playfair mb-6 italic text-center">The Music Video</h1>
+                        <div class="w-full max-w-5xl mx-auto rounded-xl overflow-hidden border-8 border-white bg-black relative aspect-video shadow-2xl">
+                            <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/Opxhh9Oh3rg?rel=0" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </section>
+
+                    <!-- B Slide 3: Lyrics -->
+                    <section class="slide b-slide">
+                        <h1 class="text-4xl lg:text-6xl font-black font-playfair mb-6 italic text-center">The Chorus</h1>
+                        <p class="text-xl font-bold text-beatles-red mb-6 text-center animate-pulse">Click the red words!</p>
+                        <div class="w-full max-w-4xl mx-auto flex-1 bg-white/60 border border-beatles-gold/20 rounded-2xl p-10 overflow-y-auto flex items-center justify-center shadow-md text-center">
+                            <div class="space-y-8 text-3xl md:text-5xl font-playfair font-black leading-tight italic">
+                                <p>Now and then</p>
+                                <p>I <span class="beatles-highlight" onclick="insight('beatles', 'miss')">miss you</span></p>
+                                <p>Oh, now and then I want you to be there for me</p>
+                                <p>Always to <span class="beatles-highlight" onclick="insight('beatles', 'return')">return to me</span></p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- B Slide 4: Faders -->
+                    <section class="slide b-slide">
+                        <h1 class="text-4xl lg:text-6xl font-black font-playfair mb-6 italic text-center">Mixing Console</h1>
+                        <p class="text-xl text-center mb-10">Push the faders up to build the sentence.</p>
+                        <div class="bg-[#2b2b2b] p-8 rounded-xl border-4 border-[#111] text-center w-full max-w-5xl mx-auto">
+                            <div class="text-2xl lg:text-4xl font-bold mb-12 text-white font-typewriter flex flex-wrap justify-center gap-2">
+                                "<span id="fb1" class="border-b-2 border-beatles-gold w-16 mx-2 text-beatles-gold"></span><span id="fb2" class="border-b-2 border-beatles-gold w-16 mx-2 text-beatles-gold"></span><span id="fb3" class="border-b-2 border-beatles-gold w-16 mx-2 text-beatles-gold"></span> I <span id="fb4" class="border-b-2 border-beatles-gold w-16 mx-2 text-beatles-gold"></span><span id="fb5" class="border-b-2 border-beatles-gold w-16 mx-2 text-beatles-gold"></span>"
+                            </div>
+                            <div class="flex gap-4 lg:gap-8 justify-center flex-wrap">
+                                <div class="flex flex-col items-center"><div class="fader-track" onclick="pushFader(this, 'miss')"><div class="fader-knob"></div></div><span class="text-white mt-2 font-typewriter text-sm">miss</span></div>
+                                <div class="flex flex-col items-center"><div class="fader-track" onclick="pushFader(this, 'now')"><div class="fader-knob"></div></div><span class="text-white mt-2 font-typewriter text-sm">now</span></div>
+                                <div class="flex flex-col items-center"><div class="fader-track" onclick="pushFader(this, 'you')"><div class="fader-knob"></div></div><span class="text-white mt-2 font-typewriter text-sm">you</span></div>
+                                <div class="flex flex-col items-center"><div class="fader-track" onclick="pushFader(this, 'then')"><div class="fader-knob"></div></div><span class="text-white mt-2 font-typewriter text-sm">then</span></div>
+                                <div class="flex flex-col items-center"><div class="fader-track" onclick="pushFader(this, 'and')"><div class="fader-knob"></div></div><span class="text-white mt-2 font-typewriter text-sm">and</span></div>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- B Slide 5: End -->
+                    <section class="slide b-slide">
+                        <div class="text-center">
+                            <div class="w-48 h-48 bg-beatles-navy rounded-full flex items-center justify-center border-[8px] border-white mb-10 mx-auto shadow-lg transform -rotate-3">
+                                <span class="text-white font-black font-playfair text-4xl italic">THE<br>END</span>
+                            </div>
+                            <h1 class="text-5xl lg:text-7xl font-black font-playfair mb-4 italic">And in the end...</h1>
+                        </div>
+                    </section>
+                </div>
+
+                <!-- B Dashboard -->
+                <div class="h-24 bg-[#d4cbbe] border-t-4 border-[#8c7b60] flex items-center justify-between px-6 shrink-0 z-40">
+                    <div class="flex items-center gap-6 w-1/3">
+                        <div class="relative w-16 h-16 shrink-0"><div class="w-full h-full rounded-full bg-[#222] border-2 border-beatles-gold vinyl-spin" id="v-beatles"><div class="absolute inset-[30%] bg-[#d4cbbe] rounded-full"></div></div></div>
+                        <div class="hidden lg:flex flex-col bg-[#e8ddcb] border border-beatles-gold rounded p-2 w-48">
+                            <span class="text-beatles-navy font-typewriter text-[11px] font-bold">SLIDE <span id="prog-txt-beatles">1/5</span></span>
+                            <div class="w-full bg-beatles-gold h-1.5 mt-1.5 rounded-full"><div id="prog-bar-beatles" class="h-full bg-beatles-red w-0 transition-all"></div></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center w-1/3">
+                        <div class="flex items-center gap-4 bg-beatles-gold p-2 rounded-lg border-2 border-[#8c7b60]">
+                            <button onclick="nav('beatles', -1)" class="beatles-btn w-12 h-10 rounded text-white font-bold flex items-center justify-center"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg></button>
+                            <button onclick="togglePlayPause('beatles')" class="beatles-btn w-16 h-12 rounded border-2 border-beatles-red flex items-center justify-center text-beatles-red">
+                                <svg id="play-beatles" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="hidden"><path d="M8 5v14l11-7z"/></svg><svg id="pause-beatles" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <button onclick="nav('beatles', 1)" class="beatles-btn w-12 h-10 rounded text-white font-bold flex items-center justify-center"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end w-1/3">
+                        <button onclick="exitLesson('beatles')" class="beatles-btn px-6 py-3 rounded text-sm uppercase font-bold text-white bg-beatles-red border-red-900 border-b-4">Close Lesson</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- ==================== LESSON 2: IRON MAIDEN ==================== -->
+    <div id="lesson-maiden" class="w-full h-full absolute inset-0 z-40 hidden flex-col font-exo">
+        <div class="sample-watermark"></div>
+        <div class="flex-1 flex flex-col w-full h-full max-w-[1600px] mx-auto p-2 lg:p-4 gap-2 z-10 text-white">
+            <main class="flex-1 flex flex-col bg-maiden-panel border-4 border-[#1e293b] rounded-xl relative overflow-hidden">
+                <div class="flex-1 m-2 lg:m-4 rounded-lg maiden-screen p-6 lg:p-10 overflow-y-auto hide-scroll flex flex-col">
+                    
+                    <!-- M Slide 1: Intro -->
+                    <section class="slide m-slide active">
+                        <div class="w-full max-w-5xl mx-auto text-center">
+                            <h2 class="font-cybermono font-bold text-maiden-neon tracking-[0.4em] text-sm mb-4 bg-maiden-neon/10 inline-block px-4 py-1 rounded">SYS_INIT • 5 SLIDES</h2>
+                            <h1 class="text-6xl lg:text-9xl font-black font-rajdhani leading-none tracking-tight mb-8 uppercase">WASTED<br><span class="text-maiden-gold drop-shadow-md">YEARS</span></h1>
+                            <div class="border-y-2 border-maiden-blue/30 py-8 bg-[#0f172a]/50 rounded-lg">
+                                <p class="font-cybermono text-xl lg:text-2xl text-maiden-blue font-bold">> TARGET_LVL: B1 (Intermediate)</p>
+                                <p class="font-cybermono text-xl lg:text-2xl text-maiden-blue font-bold">> GRAMMAR: Present Perfect Cont.</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- M Slide 2: Video -->
+                    <section class="slide m-slide h-full">
+                        <h1 class="text-4xl lg:text-6xl font-black font-rajdhani mb-6 uppercase text-center">Signal Intercept</h1>
+                        <div class="w-full max-w-5xl mx-auto rounded-lg overflow-hidden border-2 border-maiden-blue bg-black relative aspect-video shadow-[0_0_20px_rgba(0,243,255,0.5)]">
+                            <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/Ij99dud8-0A?rel=0" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </section>
+
+                    <!-- M Slide 3: Lyrics -->
+                    <section class="slide m-slide">
+                        <h1 class="text-4xl lg:text-6xl font-black font-rajdhani mb-8 uppercase text-center">Decoded: Chorus</h1>
+                        <div class="w-full max-w-4xl mx-auto flex-1 bg-[#0f172a]/60 border border-maiden-blue/30 rounded-lg p-10 overflow-y-auto text-center shadow-[0_0_20px_rgba(0,243,255,0.2)] flex items-center justify-center">
+                            <div class="space-y-8 text-4xl md:text-5xl lg:text-6xl font-black font-rajdhani leading-tight uppercase">
+                                <p>So understand</p>
+                                <p>Don't waste your time always <span class="maiden-highlight" onclick="insight('maiden', 'searching')">searching</span></p>
+                                <p>for those wasted years</p>
+                                <p>And realize you're living in the <span class="maiden-highlight" onclick="insight('maiden', 'golden')">golden years</span></p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- M Slide 4: Tuner -->
+                    <section class="slide m-slide">
+                        <h1 class="text-4xl lg:text-6xl font-black font-rajdhani mb-8 uppercase text-center">Time Machine Dial</h1>
+                        <p class="text-xl mb-10 text-gray-400 text-center">Click the dial to switch time periods.</p>
+                        <div class="bg-[#0f172a] p-10 rounded-lg flex flex-col md:flex-row items-center gap-10 border border-maiden-blue w-full max-w-5xl mx-auto">
+                            <div class="bg-[#020617] border border-gray-700 rounded-lg overflow-hidden w-full h-[250px] flex items-center justify-center p-8 relative">
+                                <div id="m-past" class="text-center absolute opacity-100 transition-all duration-300">
+                                    <p class="font-cybermono text-2xl lg:text-3xl text-gray-400 font-bold mb-4">I searched for you yesterday.</p>
+                                    <p class="text-sm text-[#ff003c] uppercase tracking-widest font-bold">Simple Past / Finished</p>
+                                </div>
+                                <div id="m-perf" class="text-center absolute opacity-0 translate-y-8 transition-all duration-300 pointer-events-none">
+                                    <p class="font-cybermono text-2xl lg:text-3xl text-maiden-neon font-bold mb-4">I have been searching for you.</p>
+                                    <p class="text-sm text-maiden-blue uppercase tracking-widest font-bold">Started past, still searching</p>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center gap-4 px-4 shrink-0">
+                                <div class="w-24 h-12 bg-black rounded-full p-1 cursor-pointer border border-maiden-blue relative" onclick="toggleMaidenTuner()">
+                                    <div id="m-knob" class="w-10 h-10 bg-maiden-blue rounded-full shadow-lg absolute left-1 transition-all duration-300"></div>
+                                </div>
+                                <span class="font-cybermono text-sm text-maiden-blue font-bold tracking-widest">JUMP</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- M Slide 5: End -->
+                    <section class="slide m-slide">
+                        <div class="text-center">
+                            <div class="w-48 h-48 bg-[#0f172a] rounded-full flex items-center justify-center border-4 border-maiden-neon mb-10 mx-auto shadow-[0_0_30px_rgba(57,255,20,0.5)]">
+                                <span class="text-maiden-neon font-black font-orbitron text-5xl">WOLFFY</span>
+                            </div>
+                            <h1 class="text-5xl lg:text-7xl font-black font-rajdhani mb-6 uppercase">Mission Complete</h1>
+                        </div>
+                    </section>
+                </div>
+
+                <div class="h-20 lg:h-24 bg-[#020617] border-t border-gray-800 flex items-center justify-between px-6 shrink-0 z-40">
+                    <div class="flex items-center gap-6 w-1/3">
+                        <div class="relative w-12 h-12 shrink-0"><div class="w-full h-full rounded-full bg-black border border-maiden-blue vinyl-spin" id="v-maiden"><img src="https://i.scdn.co/image/ab67616d0000b273ff77b94aa527101b8ef75364" class="w-full h-full object-cover opacity-80 rounded-full"></div></div>
+                        <div class="hidden lg:flex flex-col bg-[#0f172a] border border-gray-700 rounded px-4 py-2 w-48">
+                            <span class="text-maiden-neon font-cybermono text-[11px] font-bold">DATA_0<span id="prog-txt-maiden">1</span></span>
+                            <div class="w-full bg-gray-800 h-1.5 mt-1.5 rounded-full"><div id="prog-bar-maiden" class="h-full bg-maiden-neon w-0 transition-all shadow-[0_0_5px_#39ff14]"></div></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center w-1/3">
+                        <div class="flex items-center gap-4">
+                            <button onclick="nav('maiden', -1)" class="maiden-btn w-10 h-10 rounded flex items-center justify-center"><svg width="18" height="18" fill="#fff" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg></button>
+                            <button onclick="togglePlayPause('maiden')" class="bg-black border border-maiden-blue text-maiden-blue w-12 h-12 rounded flex items-center justify-center shadow-[0_0_10px_rgba(0,243,255,0.4)]">
+                                <svg id="play-maiden" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="hidden"><path d="M8 5v14l11-7z"/></svg><svg id="pause-maiden" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <button onclick="nav('maiden', 1)" class="maiden-btn w-10 h-10 rounded flex items-center justify-center"><svg width="18" height="18" fill="#fff" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end w-1/3">
+                        <button onclick="exitLesson('maiden')" class="maiden-btn px-6 py-2 rounded text-sm uppercase font-bold text-white border-b-2">Close Lesson</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+
+    <!-- ==================== LESSON 3: CCR ==================== -->
+    <div id="lesson-ccr" class="w-full h-full absolute inset-0 z-40 hidden flex-col font-outfit">
+        <div class="sample-watermark"></div>
+        <div class="flex-1 flex flex-col w-full h-full max-w-[1600px] mx-auto p-2 lg:p-4 gap-2 z-10 text-[#2c1e16]">
+            <main class="flex-1 flex flex-col bg-[#2d2d2d] rounded-3xl border-[4px] border-[#111] relative overflow-hidden shadow-2xl">
+                <div class="flex-1 m-2 lg:m-4 rounded-2xl ccr-screen p-6 lg:p-10 overflow-y-auto hide-scroll flex flex-col">
+                    
+                    <!-- C Slide 1: Intro -->
+                    <section class="slide c-slide active">
+                        <div class="w-full max-w-5xl mx-auto text-center relative z-20">
+                            <h2 class="font-mono font-bold text-ccr-orange tracking-[0.3em] uppercase text-sm mb-4">Sample Deck • 5 Slides</h2>
+                            <h1 class="text-6xl lg:text-8xl font-black font-oswald leading-none tracking-tight mb-8">Have You Ever<br><span class="text-[#0ea5e9]">Seen The Rain</span></h1>
+                            <div class="border-y-2 border-ccr-ink/10 py-8 mb-8 bg-white/30 rounded-xl">
+                                <p class="font-mono text-xl lg:text-2xl font-bold">> TARGET: A2 (Pre-Intermediate)</p>
+                                <p class="font-mono text-xl lg:text-2xl font-bold">> GRAMMAR: Present Perfect (Life Experiences)</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- C Slide 2: Video -->
+                    <section class="slide c-slide h-full">
+                        <h1 class="text-4xl lg:text-6xl font-black font-oswald mb-6 relative z-20 text-center">The Performance</h1>
+                        <div class="w-full max-w-5xl mx-auto rounded-2xl overflow-hidden border-8 border-[#2c1e16] bg-black shadow-2xl relative aspect-video z-20">
+                            <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/u1V8YRJnr4Q?rel=0" frameborder="0" allowfullscreen></iframe>
+                        </div>
+                    </section>
+
+                    <!-- C Slide 3: Lyrics -->
+                    <section class="slide c-slide">
+                        <h1 class="text-4xl lg:text-6xl font-black font-oswald mb-6 relative z-20 text-center">Lyrics Analysis</h1>
+                        <p class="text-xl font-bold text-ccr-orange mb-6 text-center relative z-20 animate-pulse">Click the orange words!</p>
+                        <div class="w-full max-w-4xl mx-auto flex-1 bg-white/60 border-4 border-ccr-ink/5 rounded-3xl p-10 overflow-y-auto shadow-2xl text-center relative z-20">
+                            <div class="space-y-6 text-2xl lg:text-4xl font-black font-oswald text-ccr-ink/80 leading-loose">
+                                <p>Someone told me long <span class="ccr-highlight" onclick="insight('ccr', 'ago')">ago</span></p>
+                                <p>There's a <span class="ccr-highlight" onclick="insight('ccr', 'calm')">calm before the storm</span></p>
+                                <p>I know, it's been comin' for some time</p>
+                                <br>
+                                <p class="text-ccr-ink text-3xl md:text-5xl">I want to know,</p>
+                                <p class="text-3xl md:text-5xl"><span class="ccr-highlight" onclick="insight('ccr', 'ever')">Have you ever</span> seen the rain?</p>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- C Slide 4: Tuner -->
+                    <section class="slide c-slide">
+                        <h1 class="text-4xl lg:text-6xl font-black font-oswald mb-8 relative z-20 text-center">Grammar Tuner</h1>
+                        <div class="bg-[#222] p-10 rounded-3xl shadow-2xl flex flex-col md:flex-row items-center gap-10 border-4 border-[#111] w-full max-w-5xl mx-auto relative z-20">
+                            <div class="bg-[#0a0a0a] border-4 border-gray-600 rounded-2xl overflow-hidden w-full h-[320px] flex items-center justify-center p-8 relative shadow-inner">
+                                <div id="c-past" class="text-center transition-all duration-300 absolute inset-0 flex flex-col justify-center items-center opacity-100 translate-y-0 pointer-events-auto">
+                                    <div class="mb-8">
+                                        <p class="font-mono text-2xl lg:text-4xl text-[#10b981] font-bold">Did you see the rain yesterday?</p>
+                                        <p class="text-sm text-white/40 mt-3 uppercase tracking-widest font-bold">Finished Action / Specific Time</p>
+                                    </div>
+                                    <div class="w-1/2 h-px bg-white/10 mb-8"></div>
+                                    <div>
+                                        <p class="font-mono text-2xl lg:text-4xl text-[#10b981] font-bold">I went to London in 2018.</p>
+                                        <p class="text-sm text-white/40 mt-3 uppercase tracking-widest font-bold">Specific Event in the past</p>
+                                    </div>
+                                </div>
+                                <div id="c-perf" class="text-center transition-all duration-300 absolute inset-0 flex flex-col justify-center items-center opacity-0 translate-y-8 pointer-events-none">
+                                    <div class="mb-8">
+                                        <p class="font-mono text-2xl lg:text-4xl text-ccr-orange font-bold">Have you ever seen the rain?</p>
+                                        <p class="text-sm text-white/40 mt-3 uppercase tracking-widest font-bold">Life Experience / Unspecified Time</p>
+                                    </div>
+                                    <div class="w-1/2 h-px bg-white/10 mb-8"></div>
+                                    <div>
+                                        <p class="font-mono text-2xl lg:text-4xl text-ccr-orange font-bold">I have been to London.</p>
+                                        <p class="text-sm text-white/40 mt-3 uppercase tracking-widest font-bold">Experience up to now</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex flex-col items-center gap-4 shrink-0 px-4">
+                                <div class="w-24 h-12 bg-[#111] rounded-full p-1 cursor-pointer border-2 border-gray-600 relative shadow-inner" onclick="toggleCCRTuner()">
+                                    <div id="c-knob" class="w-10 h-10 bg-gray-200 rounded-full shadow-lg transition-transform duration-300 absolute left-1 flex items-center justify-center">
+                                        <div class="w-4 h-4 rounded-full bg-gray-400"></div>
+                                    </div>
+                                </div>
+                                <span class="font-mono text-sm text-gray-400 font-bold tracking-widest">TUNER</span>
+                            </div>
+                        </div>
+                    </section>
+
+                    <!-- C Slide 5: End -->
+                    <section class="slide c-slide">
+                        <div class="text-center relative z-20">
+                            <div class="w-48 h-48 lg:w-64 lg:h-64 bg-gradient-to-tr from-ccr-orange to-[#0ea5e9] rounded-full flex items-center justify-center border-[12px] border-ccr-ink mb-10 mx-auto shadow-2xl transform -rotate-6">
+                                <span class="text-white font-black font-oswald text-6xl lg:text-7xl">WOLFFY</span>
+                            </div>
+                            <h1 class="text-5xl lg:text-7xl font-black font-oswald mb-6">Class Dismissed</h1>
+                        </div>
+                    </section>
+
+                </div>
+
+                <div class="h-20 lg:h-24 bg-[#1a1a1a] border-t-2 border-gray-800 flex items-center justify-between px-6 shrink-0 relative z-40">
+                    <div class="flex items-center gap-6 w-1/3">
+                        <div class="relative w-12 h-12 shrink-0"><div class="w-full h-full rounded-full bg-[#111] border-2 border-[#222] vinyl-spin" id="v-ccr"><img src="https://m.media-amazon.com/images/I/61hc8z07tNL._UF1000,1000_QL80_.jpg" class="opacity-80 grayscale object-cover w-full h-full rounded-full"></div></div>
+                        <div class="hidden lg:flex flex-col bg-black/50 border border-white/5 rounded-lg px-4 py-2 w-48">
+                            <span class="text-ccr-orange font-mono text-[11px] font-bold">TRACK <span id="prog-txt-ccr">1/5</span></span>
+                            <div class="w-full bg-gray-800 h-1.5 mt-1.5 rounded-full"><div id="prog-bar-ccr" class="h-full bg-ccr-orange w-0 transition-all"></div></div>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-center w-1/3">
+                        <div class="flex items-center gap-4">
+                            <button onclick="nav('ccr', -1)" class="ccr-btn w-10 h-10 rounded-full flex items-center justify-center text-white"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg></button>
+                            <button onclick="togglePlayPause('ccr')" class="ccr-btn w-12 h-12 rounded-full border border-ccr-orange flex items-center justify-center text-ccr-orange">
+                                <svg id="play-ccr" width="24" height="24" fill="currentColor" viewBox="0 0 24 24" class="hidden"><path d="M8 5v14l11-7z"/></svg><svg id="pause-ccr" width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+                            </button>
+                            <button onclick="nav('ccr', 1)" class="ccr-btn w-10 h-10 rounded-full flex items-center justify-center text-white"><svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg></button>
+                        </div>
+                    </div>
+                    <div class="flex items-center justify-end w-1/3">
+                        <button onclick="exitLesson('ccr')" class="ccr-btn px-6 py-2 rounded-xl text-sm uppercase font-bold text-white border-b-4">Close Lesson</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- ==================== SHARED INSIGHT OVERLAY ==================== -->
+    <div id="insight-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+        <div id="insight-card" class="bg-[#1a1a1a] border-4 border-white rounded-3xl p-10 max-w-3xl w-full relative transform scale-95 transition-transform duration-300">
+            <button onclick="closeInsight()" class="absolute top-6 right-6 text-gray-500 hover:text-white bg-black/50 w-10 h-10 rounded-full flex items-center justify-center font-bold">X</button>
+            <h2 id="ins-title" class="text-4xl font-black text-white mb-6 italic font-playfair">Title</h2>
+            <p id="ins-explanation" class="text-xl text-gray-300 border-l-4 border-white pl-6 mb-10 font-outfit">...</p>
+            <div class="bg-black/50 p-8 rounded-2xl border border-gray-800">
+                <p id="ins-q" class="text-white font-bold mb-8 text-2xl font-outfit">Question?</p>
+                <div id="ins-opts" class="flex flex-col gap-4 font-outfit"></div>
+                <div id="ins-fb" class="hidden mt-8 text-[#10b981] font-black text-2xl text-center uppercase tracking-widest animate-pulse">Great Job!</div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ==================== LOGIC ==================== -->
+    <script>
+        let curLessons = {
+            beatles: { idx: 0, slides: document.querySelectorAll('.b-slide'), total: 5, isPlaying: true },
+            maiden: { idx: 0, slides: document.querySelectorAll('.m-slide'), total: 5, isPlaying: true },
+            ccr: { idx: 0, slides: document.querySelectorAll('.c-slide'), total: 5, isPlaying: true }
+        };
+
+        // Hub Navigation
+        function launchLesson(id) {
+            const loader = document.getElementById('loader');
+            loader.classList.remove('opacity-0', 'pointer-events-none');
+            
+            setTimeout(() => {
+                document.getElementById('hub-view').classList.add('hidden');
+                document.getElementById(`lesson-${id}`).classList.remove('hidden');
+                document.getElementById(`lesson-${id}`).classList.add('flex');
+                loader.classList.add('opacity-0', 'pointer-events-none');
+                
+                // Ensure correct display of first slide
+                updateLessonUI(id);
+            }, 1000);
+        }
+
+        function exitLesson(id) {
+            document.getElementById(`lesson-${id}`).classList.add('hidden');
+            document.getElementById(`lesson-${id}`).classList.remove('flex');
+            document.getElementById('hub-view').classList.remove('hidden');
+        }
+
+        // Lesson Slide Navigation
+        function nav(id, dir) {
+            const l = curLessons[id];
+            if ((dir === 1 && l.idx < l.total - 1) || (dir === -1 && l.idx > 0)) {
+                l.slides[l.idx].classList.remove('active');
+                l.idx += dir;
+                l.slides[l.idx].classList.add('active');
+                updateLessonUI(id);
+                if(l.idx === l.total - 1) shootConfetti(id);
+                
+                // Scroll to top of the specific screen
+                const screens = document.querySelectorAll('.overflow-y-auto');
+                screens.forEach(s => s.scrollTop = 0);
+            }
+        }
+
+        function updateLessonUI(id) {
+            const l = curLessons[id];
+            document.getElementById(`prog-txt-${id}`).innerText = `${l.idx + 1}/${l.total}`;
+            const pct = l.total > 1 ? (l.idx / (l.total - 1)) * 100 : 0;
+            document.getElementById(`prog-bar-${id}`).style.width = `${pct}%`;
+        }
+
+        function togglePlayPause(id) {
+            const l = curLessons[id];
+            l.isPlaying = !l.isPlaying;
+            document.getElementById(`play-${id}`).classList.toggle('hidden', l.isPlaying);
+            document.getElementById(`pause-${id}`).classList.toggle('hidden', !l.isPlaying);
+            const v = document.getElementById(`v-${id}`);
+            if(v) v.classList.toggle('vinyl-paused', !l.isPlaying);
+        }
+
+        // --- Beatles Splicer ---
+        let bFader = 1; const expFaders = {1:'miss',2:'now',3:'you',4:'then',5:'and'};
+        function pushFader(el, word) {
+            if(bFader > 5) return;
+            if(expFaders[bFader] === word) {
+                document.getElementById(`fb${bFader}`).innerText = word.toUpperCase();
+                el.classList.add('used'); bFader++;
+                if(bFader > 5) shootConfetti('beatles');
+            } else { el.classList.add('shake'); setTimeout(()=>el.classList.remove('shake'),400); }
+        }
+
+        // --- Maiden Tuner ---
+        function toggleMaidenTuner() {
+            const knob = document.getElementById('m-knob'); const past = document.getElementById('m-past'); const perf = document.getElementById('m-perf');
+            if(knob.classList.contains('translate-x-12')) {
+                knob.classList.remove('translate-x-12');
+                past.classList.replace('opacity-0','opacity-100'); past.classList.replace('translate-y-8','translate-y-0'); past.classList.remove('pointer-events-none');
+                perf.classList.replace('opacity-100','opacity-0'); perf.classList.replace('translate-y-0','translate-y-8'); perf.classList.add('pointer-events-none');
+            } else {
+                knob.classList.add('translate-x-12');
+                past.classList.replace('opacity-100','opacity-0'); past.classList.replace('translate-y-0','translate-y-8'); past.classList.add('pointer-events-none');
+                perf.classList.replace('opacity-0','opacity-100'); perf.classList.replace('translate-y-8','translate-y-0'); perf.classList.remove('pointer-events-none');
+            }
+        }
+
+        // --- CCR Tuner ---
+        function toggleCCRTuner() {
+            const knob = document.getElementById('c-knob'); const past = document.getElementById('c-past'); const perf = document.getElementById('c-perf');
+            if(knob.classList.contains('translate-x-10')) {
+                knob.classList.remove('translate-x-10');
+                past.classList.replace('opacity-0','opacity-100'); past.classList.replace('translate-y-8','translate-y-0'); past.classList.remove('pointer-events-none');
+                perf.classList.replace('opacity-100','opacity-0'); perf.classList.replace('translate-y-0','translate-y-8'); perf.classList.add('pointer-events-none');
+            } else {
+                knob.classList.add('translate-x-10');
+                past.classList.replace('opacity-100','opacity-0'); past.classList.replace('translate-y-0','translate-y-8'); past.classList.add('pointer-events-none');
+                perf.classList.replace('opacity-0','opacity-100'); perf.classList.replace('translate-y-8','translate-y-0'); perf.classList.remove('pointer-events-none');
+            }
+        }
+
+        // --- Shared Insights ---
+        const insightData = {
+            'beatles': {
+                'miss': { t:'Miss you', e:'To feel sad when someone is not there.', q:'Who do you miss today?', o:['An old friend.', 'A family member.'], c: 'border-[#8c2626]', tc: 'text-[#8c2626]'},
+                'return': { t:'Return to me', e:'To come back.', q:'If you could return to a place, where would it be?', o:['My childhood home.', 'A place I visited.'], c: 'border-[#8c2626]', tc: 'text-[#8c2626]'}
+            },
+            'maiden': {
+                'searching': { t:'Searching', e:'Looking for something constantly.', q:'Are you searching for a specific goal?', o:['Yes, happiness.', 'No, I am good.'], c: 'border-[#ffd700]', tc: 'text-[#ffd700]'},
+                'golden': { t:'Golden Years', e:'The best, most successful time of your life.', q:'When are the "golden years"?', o:['Right now!', 'In the past.'], c: 'border-[#ffd700]', tc: 'text-[#ffd700]'}
+            },
+            'ccr': {
+                'ago': { t:'Long ago', e:'Specific time in the past.', q:'What did you do a few days ago?', o:['Watched a movie', 'Studied'], c: 'border-[#f97316]', tc: 'text-[#f97316]'},
+                'calm': { t:'Calm before the storm', e:'Peaceful period before trouble.', q:'Have you ever felt this?', o:['Yes, many times','No, never'], c: 'border-[#f97316]', tc: 'text-[#f97316]'},
+                'ever': { t:'Have you ever...', e:'Asking about life experiences.', q:'Have you ever seen snow?', o:['Yes, I have!','No, I haven\'t'], c: 'border-[#f97316]', tc: 'text-[#f97316]'}
+            }
+        };
+
+        function insight(theme, key) {
+            const data = insightData[theme][key];
+            if(!data) return;
+            const card = document.getElementById('insight-card');
+            card.className = `bg-[#1a1a1a] border-4 rounded-3xl p-10 max-w-3xl w-full relative transform scale-95 transition-transform duration-300 ${data.c}`;
+            
+            document.getElementById('ins-title').innerText = data.t;
+            document.getElementById('ins-title').className = `text-4xl font-black mb-6 italic font-playfair ${data.tc}`;
+            
+            document.getElementById('ins-explanation').innerText = data.e;
+            document.getElementById('ins-explanation').className = `text-xl text-gray-300 border-l-4 pl-6 mb-10 font-outfit ${data.c}`;
+            
+            document.getElementById('ins-q').innerText = data.q;
+            document.getElementById('ins-q').className = `font-bold mb-8 text-2xl font-outfit ${data.tc}`;
+            
+            const con = document.getElementById('ins-opts'); con.innerHTML='';
+            data.o.forEach(o => { 
+                const b=document.createElement('button'); 
+                b.className='bg-white/10 p-4 rounded-xl text-left font-bold text-xl hover:bg-white/20 transition-colors text-white'; 
+                b.innerText=o; 
+                b.onclick=()=>document.getElementById('ins-fb').classList.remove('hidden'); 
+                con.appendChild(b); 
+            });
+            document.getElementById('ins-fb').classList.add('hidden');
+            
+            const overlay = document.getElementById('insight-overlay');
+            overlay.classList.replace('opacity-0','opacity-100'); 
+            overlay.classList.replace('pointer-events-none','pointer-events-auto');
+            setTimeout(() => card.classList.replace('scale-95', 'scale-100'), 50);
+        }
+
+        function closeInsight() {
+            const overlay = document.getElementById('insight-overlay');
+            const card = document.getElementById('insight-card');
+            card.classList.replace('scale-100', 'scale-95');
+            setTimeout(() => {
+                overlay.classList.replace('opacity-100','opacity-0'); 
+                overlay.classList.replace('pointer-events-auto','pointer-events-none');
+            }, 200);
+        }
+
+        function shootConfetti(themeId) {
+            let colors = ['#ffffff'];
+            if(themeId === 'beatles') colors = ['#8c2626', '#bda888', '#1c2841'];
+            if(themeId === 'maiden') colors = ['#39ff14', '#00f3ff', '#ffd700'];
+            if(themeId === 'ccr') colors = ['#f97316', '#0ea5e9', '#ffffff'];
+
+            for(let i=0; i<60; i++) {
+                const c = document.createElement('div'); c.className='confetti rounded-sm';
+                c.style.left = Math.random()*100+'vw'; c.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+                c.style.animation = `fall ${Math.random()*3+2}s linear forwards`;
+                document.body.appendChild(c); setTimeout(()=>c.remove(), 4000);
+            }
+        }
+    </script>
+</body>
+</html>
